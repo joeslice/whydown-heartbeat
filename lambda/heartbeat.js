@@ -1,9 +1,11 @@
 const AWSXRay = require('aws-xray-sdk-core')
 const AWS = AWSXRay.captureAWS(require('aws-sdk'))
 const db = new AWS.DynamoDB.DocumentClient();
+const sns = new AWS.SNS();
 
 const checkinTable = process.env.CHECKIN_TABLE_NAME;
 const backTable = process.env.BACK_TABLE_NAME;
+const snsTopic = process.env.SNS_TOPIC_ARN;
 
 exports.checkin = async function(event) {
     console.log("request", JSON.stringify(event, undefined, 2));
@@ -50,6 +52,15 @@ exports.back = async function(event) {
                 outage: outage,
                 missed: missed
             }
+        }).promise();
+
+        await sns.publish({
+            Message: JSON.stringify({
+                reporter: reporter,
+                outage: outage,
+                missed: missed
+            }),
+            TopicArn: snsTopic
         }).promise();
         return { statusCode: 204 };
     } else {

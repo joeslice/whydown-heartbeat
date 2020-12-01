@@ -3,6 +3,7 @@ import { HttpApi } from '@aws-cdk/aws-apigatewayv2';
 import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import * as sns from '@aws-cdk/aws-sns';
 
 const PARTITION_KEY = 'reporter';
 const SORT_KEY = 'checkinTime';
@@ -35,11 +36,16 @@ export class HeartbeatStack extends cdk.Stack {
       tableName: 'back'
     });
 
+    const backTopic = new sns.Topic(this, 'BackTopic', {
+      displayName: '[Checkin] Reporter back'
+    });
+
     const lambdaEnvironment = {
       CHECKIN_TABLE_NAME: checkinTable.tableName,
       BACK_TABLE_NAME: backTable.tableName,
       PARTITION_KEY: PARTITION_KEY,
-      SORT_KEY: SORT_KEY
+      SORT_KEY: SORT_KEY,
+      SNS_TOPIC_ARN: backTopic.topicArn
     };
 
     const lambdaCode = lambda.Code.fromAsset('lambda');
@@ -63,6 +69,7 @@ export class HeartbeatStack extends cdk.Stack {
     });
 
     backTable.grantWriteData(backLambda);
+    backTopic.grantPublish(backLambda);
 
     const api = new HttpApi(this, 'Api', {
       apiName: 'heartbeat'
