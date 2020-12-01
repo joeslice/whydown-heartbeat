@@ -44,24 +44,26 @@ exports.back = async function(event) {
         const { reporter } = pathParameters;
         const { outage, missed } = queryStringParameters;
 
-        await db.put({
-            TableName: backTable,
-            Item: {
-                reporter: reporter,
-                checkinTime: Date.now()/1000,
-                outage: outage,
-                missed: missed
-            }
-        }).promise();
+        await Promise.all([
+            db.put({
+                TableName: backTable,
+                Item: {
+                    reporter: reporter,
+                    checkinTime: Date.now()/1000,
+                    outage: outage,
+                    missed: missed
+                }
+            }).promise(),
 
-        await sns.publish({
-            Message: JSON.stringify({
-                reporter: reporter,
-                outage: outage,
-                missed: missed
-            }),
-            TopicArn: snsTopic
-        }).promise();
+            await sns.publish({
+                Message: JSON.stringify({
+                    reporter: reporter,
+                    outage: outage,
+                    missed: missed
+                }),
+                TopicArn: snsTopic
+            }).promise()
+        ]);
         return { statusCode: 204 };
     } else {
         return { statusCode: 400 };
