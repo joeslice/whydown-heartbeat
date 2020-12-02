@@ -19,10 +19,10 @@ export class HeartbeatStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      tableName: 'checkins'
+      tableName: 'checkin'
     });
 
-    const backTable = new dynamodb.Table(this, 'BackTable', {
+    const outageTable = new dynamodb.Table(this, 'OutageTable', {
       partitionKey: {
         name: PARTITION_KEY,
         type: dynamodb.AttributeType.STRING
@@ -33,19 +33,19 @@ export class HeartbeatStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      tableName: 'back'
+      tableName: 'outage'
     });
 
-    const backTopic = new sns.Topic(this, 'BackTopic', {
-      displayName: '[Checkin] Reporter back'
+    const outageTopic = new sns.Topic(this, 'OutageTopic', {
+      displayName: '[Checkin] Reporter outage'
     });
 
     const lambdaEnvironment = {
       CHECKIN_TABLE_NAME: checkinTable.tableName,
-      BACK_TABLE_NAME: backTable.tableName,
+      OUTAGE_TABLE_NAME: outageTable.tableName,
       PARTITION_KEY: PARTITION_KEY,
       SORT_KEY: SORT_KEY,
-      SNS_TOPIC_ARN: backTopic.topicArn
+      SNS_TOPIC_ARN: outageTopic.topicArn
     };
 
     const lambdaCode = lambda.Code.fromAsset('lambda');
@@ -59,17 +59,8 @@ export class HeartbeatStack extends cdk.Stack {
     });
 
     checkinTable.grantWriteData(checkinLambda);
-
-    const backLambda = new lambda.Function(this, 'BackLambda', {
-      code: lambdaCode,
-      handler: 'heartbeat.back',
-      runtime: lambda.Runtime.NODEJS_10_X,
-      environment: lambdaEnvironment,
-      tracing: lambda.Tracing.ACTIVE
-    });
-
-    backTable.grantWriteData(backLambda);
-    backTopic.grantPublish(backLambda);
+    outageTable.grantWriteData(checkinLambda);
+    outageTopic.grantPublish(checkinLambda);
 
     const api = new HttpApi(this, 'Api', {
       apiName: 'heartbeat'
@@ -79,13 +70,6 @@ export class HeartbeatStack extends cdk.Stack {
       path: "/{reporter}/checkin",
       integration: new LambdaProxyIntegration({
         handler: checkinLambda
-      })
-    });
-
-    api.addRoutes({
-      path: "/{reporter}/back",
-      integration: new LambdaProxyIntegration({
-        handler: backLambda
       })
     });
   }
