@@ -50,12 +50,11 @@ int lastPingId;
 long lastSuccessTime;
 int lastSuccessPingId;
 boolean mostRecentPingSuccess;
+int ledPin = 2;
 
 void setup() {
   Serial.begin(115200);
-  Serial.setDebugOutput(true);
-  Serial.println();
-
+  pinMode(ledPin, OUTPUT);
   WiFi.mode(WIFI_STA);
   WiFiMulti.addAP(ssid, passwd);
 
@@ -65,8 +64,8 @@ void setup() {
     Serial.print(".");
   }
   Serial.println(" connected");
+  Serial.println(WiFi.localIP());
 
-  // setClock(); 
   lastPingId = 0;
   lastSuccessTime = millis(); 
   lastSuccessPingId = 0;
@@ -93,7 +92,7 @@ void loop() {
     {
       // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is 
       HTTPClient https;
-  
+
       Serial.print("[HTTPS] begin...\n");
 
       long start = millis();
@@ -121,6 +120,7 @@ void loop() {
         https.end();
       } else {
         Serial.printf("[HTTPS] Unable to connect\n");
+        mostRecentPingSuccess = false;
       }
     }
   
@@ -128,6 +128,8 @@ void loop() {
   } else {
     Serial.println("Unable to create client");
   }
+
+  digitalWrite(ledPin, mostRecentPingSuccess ? LOW : HIGH);
 
   Serial.println();
   Serial.println("Waiting 10s before the next round...");
