@@ -58,9 +58,19 @@ export class HeartbeatStack extends cdk.Stack {
       tracing: lambda.Tracing.ACTIVE
     });
 
+    const queryLambda = new lambda.Function(this, 'QueryLambda', {
+      code: lambdaCode,
+      handler: 'heartbeat.query',
+      runtime: lambda.Runtime.NODEJS_10_X,
+      environment: lambdaEnvironment,
+      tracing: lambda.Tracing.ACTIVE
+    });
+
     checkinTable.grantWriteData(checkinLambda);
     outageTable.grantWriteData(checkinLambda);
     outageTopic.grantPublish(checkinLambda);
+    checkinTable.grantReadData(queryLambda);
+    outageTable.grantReadData(queryLambda);
 
     const api = new HttpApi(this, 'Api', {
       apiName: 'heartbeat'
@@ -70,6 +80,13 @@ export class HeartbeatStack extends cdk.Stack {
       path: "/{reporter}/checkin",
       integration: new LambdaProxyIntegration({
         handler: checkinLambda
+      })
+    });
+
+    api.addRoutes({
+      path: "/{reporter}/query",
+      integration: new LambdaProxyIntegration({
+        handler: queryLambda
       })
     });
   }

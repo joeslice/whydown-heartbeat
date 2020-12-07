@@ -60,3 +60,41 @@ exports.checkin = async function(event) {
         return { statusCode: 400 }
     }
 };
+
+exports.query = async function(event) {
+    console.log("request", JSON.stringify(event, undefined, 2));
+    const { queryStringParameters, pathParameters } = event;
+    if (pathParameters['reporter']) {
+        const { reporter } = pathParameters;
+
+        const checkinPromise = db.get({
+            TableName: checkinTable,
+            Key: {
+                reporter: reporter
+            }
+        }).promise();
+
+        const outagePromise = db.query({
+            TableName: outageTable,
+            KeyConditionExpression: "#reporter = :rpter",
+            ExpressionAttributeNames: {
+                "#reporter": "reporter"
+            },
+            ExpressionAttributeValues: {
+                ":rpter": reporter
+            }
+        }).promise();
+
+        const results = await Promise.all([checkinPromise, outagePromise]);
+        console.log("results", JSON.stringify(results, undefined, 2));
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                checkin: results[0].Item,
+                outages: results[1].Items,
+                outageCount: results[1].Count
+            })
+        };
+    }
+}
