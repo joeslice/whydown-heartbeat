@@ -17,6 +17,7 @@ const char* ssid = "...";
 const char* passwd = "...";
 String baseUrl = "https://....execute-api.us-east-1.amazonaws.com/";
 String reporter = "...";
+const bool blindMeMode = true;
 
 const char* rootCACertificate = \
 "-----BEGIN CERTIFICATE-----\n" \
@@ -94,6 +95,10 @@ void loop() {
       HTTPClient https;
 
       Serial.print("[HTTPS] begin...\n");
+      // Flash LED on ping
+      if (blindMeMode) {
+        digitalWrite(ledPin, HIGH);
+      }
 
       long start = millis();
       String url = checkinUrl(start);
