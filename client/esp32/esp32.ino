@@ -94,7 +94,6 @@ void loop() {
       // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is 
       HTTPClient https;
 
-      Serial.print("[HTTPS] begin...\n");
       // Flash LED on ping
       if (blindMeMode) {
         digitalWrite(ledPin, HIGH);
@@ -103,8 +102,7 @@ void loop() {
       long start = millis();
       String url = checkinUrl(start);
       if (https.begin(*client, url)) {
-        Serial.println("[HTTPS] GET...");
-        Serial.println(url);
+        Serial.printf("%d [HTTPS] GET %s\n", millis(), url.c_str());
 
         // start connection and send HTTP header
         int httpCode = https.GET();
@@ -113,18 +111,18 @@ void loop() {
         // httpCode will be negative on error
         if (httpCode > 0) {
           // HTTP header has been send and Server response header has been handled
-          Serial.printf("[HTTPS] GET... code: %d\n", httpCode, duration);
+          Serial.printf("%d [HTTPS] response code: %d\n", millis(), httpCode, duration);
           lastSuccessTime = start;
           lastSuccessPingId = lastPingId;
           mostRecentPingSuccess = true;
         } else {
-          Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+          Serial.printf("%d [HTTPS] GET... failed, error: %s\n", millis(), https.errorToString(httpCode).c_str());
           mostRecentPingSuccess = false;
         }
   
         https.end();
       } else {
-        Serial.printf("[HTTPS] Unable to connect\n");
+        Serial.printf("%d [HTTPS] Unable to connect\n", millis());
         mostRecentPingSuccess = false;
       }
     }
@@ -136,7 +134,7 @@ void loop() {
 
   digitalWrite(ledPin, mostRecentPingSuccess ? LOW : HIGH);
 
-  Serial.println();
-  Serial.println("Waiting 10s before the next round...");
+  //Serial.println();
+  //Serial.printf("%d Waiting 10s before the next round...\n", millis());
   delay(10000);
 }
