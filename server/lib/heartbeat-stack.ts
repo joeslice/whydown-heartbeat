@@ -55,7 +55,7 @@ export class HeartbeatStack extends cdk.Stack {
       handler: 'heartbeat.checkin',
       runtime: lambda.Runtime.NODEJS_10_X,
       environment: lambdaEnvironment,
-      tracing: lambda.Tracing.ACTIVE
+      tracing: lambda.Tracing.PASS_THROUGH
     });
 
     const queryLambda = new lambda.Function(this, 'QueryLambda', {
@@ -63,7 +63,7 @@ export class HeartbeatStack extends cdk.Stack {
       handler: 'heartbeat.query',
       runtime: lambda.Runtime.NODEJS_10_X,
       environment: lambdaEnvironment,
-      tracing: lambda.Tracing.ACTIVE
+      tracing: lambda.Tracing.PASS_THROUGH
     });
 
     checkinTable.grantWriteData(checkinLambda);
