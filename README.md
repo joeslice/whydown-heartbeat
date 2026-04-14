@@ -6,9 +6,12 @@ Constantly ping (every 10s) an AWS-hosted API, tracking and notifying when an ou
 
 ### Cloud-side
 
-A CDK based stack spins up an API gateway with a route called "checkin". This route calls a lambda which stores the number of checkins per reporter and last time seen in a dynamodb table. Another dynamodb table is populated when an outage is detected, noting how long and how many missed checkins. Also, a notice is raised to an SNS topic when an outage occurred. I simply manually subscribed this to my e-mail to be notified when an outage is resolved, but any amount of automation could be added downstream of SNS.
+A CDK based stack spins up an API gateway with two routes per reporter:
 
-These dynamodb tables can be queried using a "query" route.
+- `GET /{reporter}/checkin?pingId=<n>` — records a heartbeat; optional `outage=<ms>&missed=<n>` parameters trigger an outage record and SNS notification
+- `GET /{reporter}/query` — returns the latest checkin and outage history for a reporter
+
+Checkin data is stored in DynamoDB. When an outage is detected, a second DynamoDB table is written and a notice is raised to an SNS topic. I simply manually subscribed this to my e-mail to be notified when an outage is resolved, but any amount of automation could be added downstream of SNS.
 
 See also [server code](./server).
 

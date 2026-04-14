@@ -1,12 +1,39 @@
 # Heartbeat server
 
-Reporters call `/<reporter>/checkin` occasionally and expect a 204 reponse code. If failures occur, arguments `outage=<ms>&missed=<numMissed>` can also be supplied. The checkin is stored in a persistent datastore and upon `outage` or `missed`, an SNS message is raised.
+Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code. If failures occur, arguments `outage=<ms>&missed=<numMissed>` can also be supplied. The checkin is stored in a persistent datastore and upon `outage` or `missed`, an SNS message is raised.
 
 ## API
 
-The checkin endpoint is: `GET /<reporter>/checkin?pingId=<n>` with optional parameters `outage=<ms>&missed=<numpings>`.
+### `GET /<reporter>/checkin`
 
-Query for latest checkin and outages at `GET /<reporter>/query`.
+| Parameter | Location | Required | Description |
+|---|---|---|---|
+| `reporter` | path | yes | Identifies the reporting device |
+| `pingId` | query | yes | Monotonically increasing ping counter |
+| `outage` | query | no | Duration of the detected outage in milliseconds |
+| `missed` | query | no | Number of pings missed during the outage |
+
+Returns `204` on success. Returns `400` if `reporter` or `pingId` are absent.
+
+When `outage` or `missed` is provided, an outage record is written to DynamoDB and an SNS notification is published.
+
+### `GET /<reporter>/query`
+
+| Parameter | Location | Required |
+|---|---|---|
+| `reporter` | path | yes |
+
+Returns `200` with JSON body:
+
+```json
+{
+  "checkin": { "reporter": "...", "lastPing": "...", "checkinTime": 1234567890.0 },
+  "outages": [ ... ],
+  "outageCount": 0
+}
+```
+
+Returns `400` if `reporter` is absent.
 
 ## Example
 
