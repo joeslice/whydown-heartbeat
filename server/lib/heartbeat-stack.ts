@@ -1,15 +1,14 @@
-import * as cdk from '@aws-cdk/core';
-import { HttpApi } from '@aws-cdk/aws-apigatewayv2';
-import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as sns from '@aws-cdk/aws-sns';
+import * as cdk from 'aws-cdk-lib';
+import { aws_lambda as lambda, aws_dynamodb as dynamodb, aws_sns as sns } from 'aws-cdk-lib';
+import { HttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
+import { Construct } from 'constructs';
 
 const PARTITION_KEY = 'reporter';
 const SORT_KEY = 'checkinTime';
 
 export class HeartbeatStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const checkinTable = new dynamodb.Table(this, 'CheckinTable', {

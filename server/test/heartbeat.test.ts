@@ -1,46 +1,47 @@
-import { expect as expectCDK, haveResource } from '@aws-cdk/assert';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
 import * as Heartbeat from '../lib/heartbeat-stack';
 
-let stack: cdk.Stack;
+let template: Template;
 
 beforeAll(() => {
   const app = new cdk.App();
-  stack = new Heartbeat.HeartbeatStack(app, 'MyTestStack');
+  const stack = new Heartbeat.HeartbeatStack(app, 'MyTestStack');
+  template = Template.fromStack(stack);
 });
 
 test('creates checkin DynamoDB table', () => {
-  expectCDK(stack).to(haveResource('AWS::DynamoDB::Table', {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
     TableName: 'checkin',
     BillingMode: 'PAY_PER_REQUEST'
-  }));
+  });
 });
 
 test('creates outage DynamoDB table', () => {
-  expectCDK(stack).to(haveResource('AWS::DynamoDB::Table', {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
     TableName: 'outage',
     BillingMode: 'PAY_PER_REQUEST'
-  }));
+  });
 });
 
 test('creates checkin and query Lambda functions', () => {
-  expectCDK(stack).to(haveResource('AWS::Lambda::Function', {
+  template.hasResourceProperties('AWS::Lambda::Function', {
     Handler: 'heartbeat.checkin'
-  }));
-  expectCDK(stack).to(haveResource('AWS::Lambda::Function', {
+  });
+  template.hasResourceProperties('AWS::Lambda::Function', {
     Handler: 'heartbeat.query'
-  }));
+  });
 });
 
 test('creates HTTP API', () => {
-  expectCDK(stack).to(haveResource('AWS::ApiGatewayV2::Api', {
+  template.hasResourceProperties('AWS::ApiGatewayV2::Api', {
     Name: 'heartbeat',
     ProtocolType: 'HTTP'
-  }));
+  });
 });
 
 test('creates SNS topic for outage alerts', () => {
-  expectCDK(stack).to(haveResource('AWS::SNS::Topic', {
+  template.hasResourceProperties('AWS::SNS::Topic', {
     DisplayName: '[Checkin] Reporter outage'
-  }));
+  });
 });
