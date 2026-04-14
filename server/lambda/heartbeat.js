@@ -1,5 +1,4 @@
-const AWSXRay = require('aws-xray-sdk-core')
-const AWS = AWSXRay.captureAWS(require('aws-sdk'))
+const AWS = require('aws-sdk')
 const db = new AWS.DynamoDB.DocumentClient();
 const sns = new AWS.SNS();
 
