@@ -52,7 +52,7 @@ export class HeartbeatStack extends cdk.Stack {
     const checkinLambda = new lambda.Function(this, 'CheckinLambda', {
       code: lambdaCode,
       handler: 'heartbeat.checkin',
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       environment: lambdaEnvironment,
       tracing: lambda.Tracing.PASS_THROUGH
     });
@@ -60,7 +60,7 @@ export class HeartbeatStack extends cdk.Stack {
     const queryLambda = new lambda.Function(this, 'QueryLambda', {
       code: lambdaCode,
       handler: 'heartbeat.query',
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       environment: lambdaEnvironment,
       tracing: lambda.Tracing.PASS_THROUGH
     });

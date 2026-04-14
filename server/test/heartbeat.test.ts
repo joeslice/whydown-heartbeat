@@ -24,12 +24,14 @@ test('creates outage DynamoDB table', () => {
   });
 });
 
-test('creates checkin and query Lambda functions', () => {
+test('creates checkin and query Lambda functions on Node 20', () => {
   template.hasResourceProperties('AWS::Lambda::Function', {
-    Handler: 'heartbeat.checkin'
+    Handler: 'heartbeat.checkin',
+    Runtime: 'nodejs20.x'
   });
   template.hasResourceProperties('AWS::Lambda::Function', {
-    Handler: 'heartbeat.query'
+    Handler: 'heartbeat.query',
+    Runtime: 'nodejs20.x'
   });
 });
 
