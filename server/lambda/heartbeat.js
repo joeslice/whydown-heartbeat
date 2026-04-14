@@ -10,8 +10,8 @@ const snsTopic = process.env.SNS_TOPIC_ARN;
 exports.checkin = async function(event) {
     console.log("request", JSON.stringify(event, undefined, 2));
     const { queryStringParameters, pathParameters } = event;
-    
-    if (queryStringParameters['pingId'] && pathParameters['reporter']) {
+
+    if (queryStringParameters?.['pingId'] && pathParameters?.['reporter']) {
         const { pingId, outage, missed} = queryStringParameters;
         const { reporter } = pathParameters;
         
@@ -63,8 +63,8 @@ exports.checkin = async function(event) {
 
 exports.query = async function(event) {
     console.log("request", JSON.stringify(event, undefined, 2));
-    const { queryStringParameters, pathParameters } = event;
-    if (pathParameters['reporter']) {
+    const { pathParameters } = event;
+    if (pathParameters?.['reporter']) {
         const { reporter } = pathParameters;
 
         const checkinPromise = db.get({
@@ -96,5 +96,7 @@ exports.query = async function(event) {
                 outageCount: results[1].Count
             })
         };
+    } else {
+        return { statusCode: 400 };
     }
 }
