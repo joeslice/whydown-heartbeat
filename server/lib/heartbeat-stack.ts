@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import { HttpApi } from '@aws-cdk/aws-apigatewayv2';
-import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as sns from '@aws-cdk/aws-sns';
@@ -78,16 +78,12 @@ export class HeartbeatStack extends cdk.Stack {
 
     api.addRoutes({
       path: "/{reporter}/checkin",
-      integration: new LambdaProxyIntegration({
-        handler: checkinLambda
-      })
+      integration: new HttpLambdaIntegration('CheckinIntegration', checkinLambda)
     });
 
     api.addRoutes({
       path: "/{reporter}/query",
-      integration: new LambdaProxyIntegration({
-        handler: queryLambda
-      })
+      integration: new HttpLambdaIntegration('QueryIntegration', queryLambda)
     });
   }
 }
