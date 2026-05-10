@@ -8,6 +8,7 @@ const sns = new SNSClient();
 const checkinTable = process.env.CHECKIN_TABLE_NAME;
 const outageTable = process.env.OUTAGE_TABLE_NAME;
 const snsTopic = process.env.SNS_TOPIC_ARN;
+const outageThreshold = parseInt(process.env.OUTAGE_THRESHOLD || '30000');
 
 exports.checkin = async function(event) {
     console.log("request", JSON.stringify(event, undefined, 2));
@@ -24,7 +25,7 @@ exports.checkin = async function(event) {
                 UpdateExpression: `set lastPing = :pingId , checkinTime = :checkinTime`,
                 ExpressionAttributeValues: {
                     ':pingId': pingId,
-                    ':checkinTime': Date.now() / 1000
+                    ':checkinTime': Math.floor(Date.now() / 1000)
                 }
             }))
         ];
@@ -33,15 +34,17 @@ exports.checkin = async function(event) {
             updates.push(
                 db.send(new PutCommand({
                     TableName: outageTable,
-                    Item: { reporter, checkinTime: Date.now() / 1000, outage, missed }
+                    Item: { reporter, checkinTime: Math.floor(Date.now() / 1000), outage: parseInt(outage), missed: parseInt(missed) }
                 }))
             );
-            updates.push(
-                sns.send(new PublishCommand({
-                    Message: JSON.stringify({ reporter, outage, missed }),
-                    TopicArn: snsTopic
-                }))
-            );
+            if (parseInt(outage) >= outageThreshold) {
+                updates.push(
+                    sns.send(new PublishCommand({
+                        Message: JSON.stringify({ reporter, outage, missed }),
+                        TopicArn: snsTopic
+                    }))
+                );
+            }
         }
 
         await Promise.all(updates);
