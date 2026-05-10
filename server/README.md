@@ -1,6 +1,6 @@
 # Heartbeat server
 
-Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code. If failures occur, arguments `outage=<ms>&missed=<numMissed>` can also be supplied. The checkin is stored in a persistent datastore and upon `outage` or `missed`, an SNS message is raised.
+Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code. If failures occur, arguments `outage=<ms>&missed=<numMissed>` can also be supplied. The checkin is stored in a persistent datastore and upon `outage` or `missed`, an outage record is written. An SNS notification is raised if the outage duration meets the configured threshold (default 30s, controlled by `OUTAGE_THRESHOLD` env var in milliseconds).
 
 ## API
 
@@ -15,7 +15,7 @@ Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code
 
 Returns `204` on success. Returns `400` if `reporter` or `pingId` are absent.
 
-When `outage` or `missed` is provided, an outage record is written to DynamoDB and an SNS notification is published.
+When `outage` or `missed` is provided, an outage record is written to DynamoDB. An SNS notification is published if `outage` meets or exceeds the configured threshold.
 
 ### `GET /<reporter>/query`
 
@@ -49,14 +49,14 @@ $ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/query' | 
   "checkin": {
     "lastPing": "4",
     "reporter": "flaky-reporter",
-    "checkinTime": 1610771484.297
+    "checkinTime": 1610771484
   },
   "outages": [
     {
-      "missed": "1",
+      "missed": 1,
       "reporter": "flaky-reporter",
-      "checkinTime": 1610771484.299,
-      "outage": "30001"
+      "checkinTime": 1610771484,
+      "outage": 30001
     }
   ],
   "outageCount": 1
