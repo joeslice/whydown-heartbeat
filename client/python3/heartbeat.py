@@ -9,10 +9,12 @@ reporter = "..."
 
 pingId = 0
 lastSuccessfulPing = 0
+lastSuccessTime = time.time()
 lastPingSuccessful = True
 
 while True:
     pingId = pingId + 1
+    start = time.time()
     url = baseUrl + "/" + reporter + "/checkin"
     params = {
         'pingId': pingId
@@ -20,12 +22,14 @@ while True:
 
     if not lastPingSuccessful:
         params["missed"] = pingId - lastSuccessfulPing - 1
+        params["outage"] = int((start - lastSuccessTime) * 1000)
 
     try:
         print("requesting ping", pingId)
         if requests.get(url, params=params):
             lastPingSuccessful = True
             lastSuccessfulPing = pingId
+            lastSuccessTime = start
             print("success")
         else:
             lastPingSuccessful = False
