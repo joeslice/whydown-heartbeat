@@ -19,7 +19,7 @@ while True:
     }
 
     if not lastPingSuccessful:
-        params["missed"] = pingId - lastPingSuccessful - 1
+        params["missed"] = pingId - lastSuccessfulPing - 1
 
     try:
         print("requesting ping", pingId)
