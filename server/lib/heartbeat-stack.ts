@@ -18,7 +18,8 @@ export class HeartbeatStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      tableName: 'checkin'
+      tableName: 'checkin',
+      timeToLiveAttribute: 'ttl'
     });
 
     const outageTable = new dynamodb.Table(this, 'OutageTable', {
@@ -32,7 +33,8 @@ export class HeartbeatStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      tableName: 'outage'
+      tableName: 'outage',
+      timeToLiveAttribute: 'ttl'
     });
 
     const outageTopic = new sns.Topic(this, 'OutageTopic', {
