@@ -80,7 +80,7 @@ String checkinUrl(long start) {
   if (mostRecentPingSuccess) {
     return url;
   } else {
-    return url + "&missed=" + String(pingId - lastSuccessPingId - 1) + "&outage=" + String(start - lastSuccessTime);
+    return url + "&missed=" + String(pingId - lastSuccessPingId - 1) + "&outage=" + String((start - lastSuccessTime) / 1000);
   }
 }
 

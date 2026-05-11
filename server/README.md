@@ -1,6 +1,6 @@
 # Heartbeat server
 
-Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code. If failures occur, arguments `outage=<ms>&missed=<numMissed>` can also be supplied. The checkin is stored in a persistent datastore and upon `outage` or `missed`, an outage record is written. An SNS notification is raised if the outage duration meets the configured threshold (default 30s, controlled by `OUTAGE_THRESHOLD` env var in milliseconds).
+Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code. If failures occur, arguments `outage=<ms>&missed=<numMissed>` can also be supplied. The checkin is stored in a persistent datastore and upon `outage` or `missed`, an outage record is written. An SNS notification is raised if the outage duration meets the configured threshold (default 30s, controlled by `OUTAGE_THRESHOLD` env var in seconds).
 
 ## API
 
@@ -10,7 +10,7 @@ Reporters call `/<reporter>/checkin` occasionally and expect a 204 response code
 |---|---|---|---|
 | `reporter` | path | yes | Identifies the reporting device |
 | `pingId` | query | yes | Monotonically increasing ping counter |
-| `outage` | query | no | Duration of the detected outage in milliseconds |
+| `outage` | query | no | Duration of the detected outage in seconds |
 | `missed` | query | no | Number of pings missed during the outage |
 
 Returns `204` on success. Returns `400` if `reporter` or `pingId` are absent.
@@ -42,7 +42,7 @@ $ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/checkin?p
 # returns 204
 $ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/checkin?pingId=2'
 # returns 204
-$ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/checkin?pingId=4&missed=1&outage=30001'
+$ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/checkin?pingId=4&missed=1&outage=31'
 # returns 204
 $ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/query' | jq .
 {
@@ -56,7 +56,7 @@ $ curl 'https://....execute-api.us-east-1.amazonaws.com/flaky-reporter/query' | 
       "missed": 1,
       "reporter": "flaky-reporter",
       "checkinTime": 1610771484,
-      "outage": 30001
+      "outage": 31
     }
   ],
   "outageCount": 1

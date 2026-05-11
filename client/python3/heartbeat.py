@@ -22,7 +22,7 @@ while True:
 
     if not lastPingSuccessful:
         params["missed"] = pingId - lastSuccessfulPing - 1
-        params["outage"] = int((start - lastSuccessTime) * 1000)
+        params["outage"] = int(start - lastSuccessTime)
 
     try:
         print("requesting ping", pingId)

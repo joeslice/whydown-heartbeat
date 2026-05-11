@@ -2,7 +2,7 @@
 
 ### Description
 
-Every 10s, issues a request to `https://....execute-api.us-east-1.amazonaws.com/<reporter>/checkin?pingId=...`, expecting a 204 response. If a call fails, the device lights up and begins tracking the number of sequential failures. After a failure, successive calls include query string parameters `missed=<num_missed_pings (min=1)>` and `outage=<ms_since_previous_success>`.
+Every 10s, issues a request to `https://....execute-api.us-east-1.amazonaws.com/<reporter>/checkin?pingId=...`, expecting a 204 response. If a call fails, the device lights up and begins tracking the number of sequential failures. After a failure, successive calls include query string parameters `missed=<num_missed_pings (min=1)>` and `outage=<seconds_since_previous_success>`.
 
 This information can then be used server-side for reporting. See [server](../../server) code in this repo.
 

@@ -8,7 +8,7 @@ Constantly ping (every 10s) an AWS-hosted API, tracking and notifying when an ou
 
 A CDK based stack spins up an API gateway with two routes per reporter:
 
-- `GET /{reporter}/checkin?pingId=<n>` — records a heartbeat; optional `outage=<ms>&missed=<n>` parameters trigger an outage record, and an SNS notification is sent if the outage duration meets the configured threshold (default 30s)
+- `GET /{reporter}/checkin?pingId=<n>` — records a heartbeat; optional `outage=<s>&missed=<n>` parameters trigger an outage record, and an SNS notification is sent if the outage duration meets the configured threshold (default 30s)
 - `GET /{reporter}/query` — returns the latest checkin and outage history for a reporter
 
 Checkin data is stored in DynamoDB. When an outage is detected, a second DynamoDB table is written and a notice is raised to an SNS topic. I simply manually subscribed this to my e-mail to be notified when an outage is resolved, but any amount of automation could be added downstream of SNS.

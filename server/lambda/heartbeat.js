@@ -8,7 +8,7 @@ const sns = new SNSClient();
 const checkinTable = process.env.CHECKIN_TABLE_NAME;
 const outageTable = process.env.OUTAGE_TABLE_NAME;
 const snsTopic = process.env.SNS_TOPIC_ARN;
-const outageThreshold = parseInt(process.env.OUTAGE_THRESHOLD || '30000');
+const outageThreshold = parseInt(process.env.OUTAGE_THRESHOLD || '30');
 
 exports.checkin = async function(event) {
     console.log("request", JSON.stringify(event, undefined, 2));
