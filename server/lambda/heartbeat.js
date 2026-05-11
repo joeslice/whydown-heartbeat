@@ -19,17 +19,17 @@ exports.checkin = async function(event) {
         const { reporter } = pathParameters;
 
         const now = Math.floor(Date.now() / 1000);
-        const ttl = now + 10 * 24 * 60 * 60;
+        const expirationTime = now + 10 * 24 * 60 * 60;
 
         const updates = [
             db.send(new UpdateCommand({
                 TableName: checkinTable,
                 Key: { reporter },
-                UpdateExpression: `set lastPing = :pingId , checkinTime = :checkinTime, ttl = :ttl`,
+                UpdateExpression: `set lastPing = :pingId , checkinTime = :checkinTime, expirationTime = :expirationTime`,
                 ExpressionAttributeValues: {
                     ':pingId': pingId,
                     ':checkinTime': now,
-                    ':ttl': ttl
+                    ':expirationTime': expirationTime
                 }
             }))
         ];
@@ -38,7 +38,7 @@ exports.checkin = async function(event) {
             updates.push(
                 db.send(new PutCommand({
                     TableName: outageTable,
-                    Item: { reporter, checkinTime: now, outage: parseInt(outage), missed: parseInt(missed), ttl }
+                    Item: { reporter, checkinTime: now, outage: parseInt(outage), missed: parseInt(missed), expirationTime }
                 }))
             );
             if (parseInt(outage) >= outageThreshold) {
