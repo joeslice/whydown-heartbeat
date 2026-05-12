@@ -47,7 +47,7 @@ export class HeartbeatStack extends cdk.Stack {
       PARTITION_KEY: PARTITION_KEY,
       SORT_KEY: SORT_KEY,
       SNS_TOPIC_ARN: outageTopic.topicArn,
-      OUTAGE_THRESHOLD: '30'
+      OUTAGE_THRESHOLD: '45'
     };
 
     const lambdaCode = lambda.Code.fromAsset('lambda');
