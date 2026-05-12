@@ -26,7 +26,7 @@ while True:
 
     try:
         print("requesting ping", pingId)
-        if requests.get(url, params=params):
+        if requests.get(url, params=params, timeout=10):
             lastPingSuccessful = True
             lastSuccessfulPing = pingId
             lastSuccessTime = start
